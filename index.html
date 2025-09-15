@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Vandari - Inicio</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+    <!-- CSS personalizado -->
+    <link rel="stylesheet" href="/static/css/style.css" />
+</head>
+
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">Vandari</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Alternar navegación">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="tienda.html">Tienda</a></li>
+                    <li class="nav-item"><a class="nav-link" href="camara.html">Capturas</a></li>
+                    <li class="nav-item"><a class="nav-link" href="gps.html">Ubicación</a></li>
+                    <li class="nav-item"><a class="nav-link" href="login.html">Iniciar Sesión</a></li>
+                    <li class="nav-item"><a class="nav-link" href="registro.html">Registrarse</a></li>
+                    <li class="nav-item"><a class="nav-link" href="chatbot.html">Asistente</a></li>
+                    <li class="nav-item position-relative" id="nav-carrito-hover">
+                        <a class="nav-link" href="carrito.html">
+                            Carrito <span id="contador-carrito" class="badge bg-primary">0</span>
+                        </a>
+                        <div id="mini-carrito" class="position-absolute bg-white border rounded p-2 shadow"
+                            style="display: none; top: 100%; right: 0; z-index: 1000; width: 300px;"></div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+
+    <script>
+        (() => {
+            // Obtener la key del carrito según el usuario activo en localStorage
+            function getCarritoKey() {
+                const usuario = JSON.parse(localStorage.getItem('usuarioActivo'));
+                return usuario ? `carrito_${usuario.id}` : 'carrito_general';
+            }
+
+            function actualizarContadorCarrito() {
+                const key = getCarritoKey();
+                const carrito = JSON.parse(localStorage.getItem(key)) || [];
+                const totalItems = carrito.reduce((total, item) => total + item.cantidad, 0);
+                const contador = document.getElementById('contador-carrito');
+                if (contador) contador.textContent = totalItems;
+            }
+
+            function renderizarMiniCarrito() {
+                const miniCarrito = document.getElementById('mini-carrito');
+                if (!miniCarrito) return;
+
+                const key = getCarritoKey();
+                const carrito = JSON.parse(localStorage.getItem(key)) || [];
+
+                if (typeof productos === 'undefined' || productos.length === 0) {
+                    miniCarrito.innerHTML = '<p class="text-center mb-0">Cargando productos...</p>';
+                    return;
+                }
+
+                if (carrito.length === 0) {
+                    miniCarrito.innerHTML = '<p class="text-center mb-0">Tu carrito está vacío</p>';
+                    return;
+                }
+
+                miniCarrito.innerHTML = carrito.map(item => {
+                    const producto = productos.find(p => p.id === item.id);
+                    return `
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <div>
+                    <strong>${item.nombre}</strong><br/>
+                    Cant: ${item.cantidad}
+                </div>
+                <div>$${(item.precio * item.cantidad).toFixed(2)}</div>
+            </div>
+        `;
+                }).join('') + `
+        <hr/>
+        <div class="text-end">
+            <a href="carrito.html" class="btn btn-sm btn-primary">Ver carrito</a>
+        </div>
+    `;
+            }
+
+
+            document.addEventListener('DOMContentLoaded', () => {
+                actualizarContadorCarrito();
+
+                const navCarrito = document.getElementById('nav-carrito-hover');
+                const miniCarrito = document.getElementById('mini-carrito');
+
+                if (navCarrito && miniCarrito) {
+                    navCarrito.addEventListener('mouseenter', () => {
+                        renderizarMiniCarrito();
+                        miniCarrito.style.display = 'block';
+                    });
+
+                    navCarrito.addEventListener('mouseleave', () => {
+                        miniCarrito.style.display = 'none';
+                    });
+                }
+            });
+        })();
+    </script>
+
+    <header class="video-header position-relative">
+        <video autoplay muted loop playsinline
+            class="w-100 h-100 object-fit-cover position-absolute top-0 start-0 z-n1">
+            <source src="https://videos.pexels.com/video-files/853800/853800-sd_640_360_25fps.mp4" type="video/mp4">
+            Tu navegador no soporta video.
+        </video>
+        <div
+            class="container text-center text-white d-flex flex-column justify-content-center align-items-center h-100">
+            <h1 class="display-3 fw-bold mb-3 text-shadow">Bienvenidos a Vandari</h1>
+            <p class="lead mb-4 text-shadow">Descubre el estilo que habla por ti</p>
+            <a href="tienda.html" class="btn btn-outline-light btn-lg">Explora la colección</a>
+        </div>
+    </header>
+
+
+    <!-- Contenido principal -->
+    <main class="container mt-5 mb-5">
+
+        <!-- Quiénes somos -->
+        <section id="quienes-somos" class="mb-5">
+            <h2>Quiénes Somos</h2>
+            <p>Vandari es una marca dedicada a ofrecer los mejores productos de ropa y accesorios para ti, con
+                calidad y estilo únicos.</p>
+        </section>
+
+        <!-- Preguntas frecuentes -->
+        <section id="preguntas-frecuentes" class="mb-5">
+            <h2>Preguntas Frecuentes</h2>
+            <div class="accordion" id="faqAccordion">
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingOne">
+                        <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                            ¿Cuál es el tiempo de entrega?
+                        </button>
+                    </h2>
+                    <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne"
+                        data-bs-parent="#faqAccordion">
+                        <div class="accordion-body">
+                            El tiempo de entrega es de 3 a 5 días hábiles dependiendo de la ubicación.
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingTwo">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                            ¿Qué métodos de pago aceptan?
+                        </button>
+                    </h2>
+                    <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo"
+                        data-bs-parent="#faqAccordion">
+                        <div class="accordion-body">
+                            Aceptamos tarjetas de crédito, débito y pagos a través de plataformas digitales.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Comentarios -->
+        <section id="comentarios" class="mb-5">
+            <h2>Comentarios de nuestros clientes</h2>
+            <div class="row row-cols-1 row-cols-md-3 g-4">
+                <div class="col">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <p class="card-text">"Me encantó la calidad y rapidez en la entrega. ¡Volveré a comprar
+                                seguro!"</p>
+                            <footer class="blockquote-footer">Ana Gómez</footer>
+                        </div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <p class="card-text">"La atención al cliente fue excelente y los productos son hermosos."
+                            </p>
+                            <footer class="blockquote-footer">Luis Pérez</footer>
+                        </div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <p class="card-text">"Recomendado 100%, cumplió todas mis expectativas."</p>
+                            <footer class="blockquote-footer">María Rodríguez</footer>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Redes sociales y contacto -->
+        <section id="contacto" class="mb-5">
+            <h2>Contáctanos y Síguenos</h2>
+            <p>Correo: contacto@vandari.com | Teléfono: +57 300 123 4567</p>
+            <p>
+                <a href="#" class="me-3"><img
+                        src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRYfRZOfRyyDskFIvBevwSIXv7vDjxMRl7_Jg&s"
+                        alt="Facebook" width="30"></a>
+                <a href="#" class="me-3"><img
+                        src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/95/Instagram_logo_2022.svg/960px-Instagram_logo_2022.svg.png"
+                        alt="Instagram" width="30"></a>
+                <a href="#"><img
+                        src="data:image/png;base64,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"
+                        alt="X" width="30"></a>
+            </p>
+            <p>Ubicación: Calle 123 #45-67, Bogotá, Colombia</p>
+        </section>
+    </main>
+
+    <!-- Pie de página -->
+    <footer class="bg-dark text-white text-center py-3">
+        © 2025 Vandari. Todos los derechos reservados.
+    </footer>
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- JS personalizado -->
+    <script src="js/carrito.js"></script>
+    <script src="js/navbar.js"></script>
+
+    <!-- Modal genérico -->
+    <div class="modal fade" id="mensajeModal" tabindex="-1" aria-labelledby="mensajeModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="mensajeModalLabel">Mensaje</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body" id="mensajeModalCuerpo">
+                    <!-- Aquí va el mensaje -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Aceptar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>

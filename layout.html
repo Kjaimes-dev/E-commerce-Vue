@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FocusU</title>
+
+  <!-- Ionic Framework -->
+  <script type="module" src="https://cdn.jsdelivr.net/npm/@ionic/core@7.1.0/dist/ionic/ionic.esm.js"></script>
+  <script nomodule src="https://cdn.jsdelivr.net/npm/@ionic/core@7.1.0/dist/ionic/ionic.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@ionic/core@7.1.0/css/ionic.bundle.css"/>
+
+  <style>
+    body, html {
+      height: 100%;
+      margin: 0;
+      font-family: system-ui, sans-serif;
+    }
+  </style>
+</head>
+<body>
+
+<ion-app>
+  <!-- Menú lateral -->
+  <ion-menu content-id="main-content">
+    <ion-header>
+      <ion-toolbar color="primary">
+        <ion-title>FocusU</ion-title>
+      </ion-toolbar>
+    </ion-header>
+    <ion-content>
+      <ion-list>
+        <ion-item button onclick="navegar('index.html')">Inicio</ion-item>
+        <ion-item button onclick="navegar('camara.html')">Captura</ion-item>
+        <ion-item button onclick="navegar('ubicacion.html')">Ubicación</ion-item>
+      </ion-list>
+    </ion-content>
+  </ion-menu>
+
+  <!-- Contenido principal -->
+  <div class="ion-page" id="main-content">
+    <ion-header>
+      <ion-toolbar color="primary">
+        <ion-buttons slot="start">
+          <ion-menu-button></ion-menu-button>
+        </ion-buttons>
+        <ion-title>FocusU</ion-title>
+      </ion-toolbar>
+    </ion-header>
+
+    <ion-content class="ion-padding">
+      <!-- Aquí va el contenido dinámico de cada vista -->
+      <div id="contenido-pagina"></div>
+    </ion-content>
+  </div>
+</ion-app>
+
+<script>
+  function navegar(url) {
+    window.location.href = url;
+  }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,16 @@
+# Entornos virtuales
+venv/
+.env
+
+# NO ignorar el ejemplo
+!.env.example
+
+# Compilados de Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Logs
+*.log
+

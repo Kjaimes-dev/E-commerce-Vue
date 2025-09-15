@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Captura de Cámara - Vandari</title>
+
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/css/style.css" />
+
+  <style>
+    video,
+    canvas {
+      display: block;
+      margin-bottom: 10px;
+      border-radius: 10px;
+      max-width: 100%;
+    }
+
+    .btn-captura {
+      margin: 10px 5px;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container">
+      <a class="navbar-brand" href="index.html">Vandari</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+        aria-controls="navbarNav" aria-expanded="false" aria-label="Alternar navegación">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item"><a class="nav-link" href="tienda.html">Tienda</a></li>
+          <li class="nav-item"><a class="nav-link" href="camara.html">Capturas</a></li>
+          <li class="nav-item"><a class="nav-link" href="gps.html">Ubicación</a></li>
+          <li class="nav-item"><a class="nav-link" href="login.html">Iniciar Sesión</a></li>
+          <li class="nav-item"><a class="nav-link" href="registro.html">Registrarse</a></li>
+          <li class="nav-item"><a class="nav-link" href="chatbot.html">Asistente</a></li>
+          <li class="nav-item position-relative" id="nav-carrito-hover">
+            <a class="nav-link" href="carrito.html">
+              Carrito <span id="contador-carrito" class="badge bg-primary">0</span>
+            </a>
+            <div id="mini-carrito" class="position-absolute bg-white border rounded p-2 shadow"
+              style="display: none; top: 100%; right: 0; z-index: 1000; width: 300px; max-height: 400px; overflow-y: auto;">
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Contenido -->
+  <main class="container mt-5 mb-5">
+    <h2 class="mb-4">Captura desde la Cámara</h2>
+
+    <div class="text-center">
+      <button class="btn btn-primary btn-captura" onclick="activarCamara()">Activar Cámara</button>
+      <button class="btn btn-success btn-captura" onclick="tomarFoto()">Tomar Foto</button>
+
+      <video id="video" width="300" autoplay></video>
+      <canvas id="foto" width="300" height="225" style="display:none;"></canvas>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-dark text-white text-center py-3">
+    © 2025 Vandari. Todos los derechos reservados.
+  </footer>
+
+
+  <!-- Bootstrap JS Bundle -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- JS personalizado -->
+  <script src="js/carrito.js"></script>
+  <script src="js/navbar.js"></script>
+  <script src="js/tienda.js"></script>
+
+  <!-- Modal genérico -->
+  <div class="modal fade" id="mensajeModal" tabindex="-1" aria-labelledby="mensajeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title" id="mensajeModalLabel">Mensaje</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body" id="mensajeModalCuerpo">
+          <!-- Aquí va el mensaje -->
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Aceptar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+
+
+
+
+
+  <script>
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('foto');
+    const context = canvas.getContext('2d');
+
+    function activarCamara() {
+      navigator.mediaDevices.getUserMedia({ video: true })
+        .then(stream => {
+          video.srcObject = stream;
+        })
+        .catch(err => {
+          alert("No se pudo acceder a la cámara.");
+          console.error(err);
+        });
+    }
+
+    function tomarFoto() {
+      canvas.style.display = "block";
+      context.drawImage(video, 0, 0, canvas.width, canvas.height);
+    }
+  </script>
+</body>
+
+</html>

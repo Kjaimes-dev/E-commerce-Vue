@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ubicación Actual - Vandari</title>
+
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/css/style.css" />
+
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+
+  <!-- Ionicons -->
+  <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+  <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+
+  <style>
+    #map {
+      height: 300px;
+      margin-top: 1rem;
+      border-radius: 1em;
+    }
+
+    .btn-ubicacion {
+      margin-top: 1rem;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container">
+      <a class="navbar-brand" href="index.html">Vandari</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+        aria-controls="navbarNav" aria-expanded="false" aria-label="Alternar navegación">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item"><a class="nav-link" href="tienda.html">Tienda</a></li>
+          <li class="nav-item"><a class="nav-link" href="camara.html">Capturas</a></li>
+          <li class="nav-item"><a class="nav-link" href="gps.html">Ubicación</a></li>
+          <li class="nav-item"><a class="nav-link" href="login.html">Iniciar Sesión</a></li>
+          <li class="nav-item"><a class="nav-link" href="registro.html">Registrarse</a></li>
+          <li class="nav-item"><a class="nav-link" href="chatbot.html">Asistente</a></li>
+          <li class="nav-item position-relative" id="nav-carrito-hover">
+            <a class="nav-link" href="carrito.html">
+              Carrito <span id="contador-carrito" class="badge bg-primary">0</span>
+            </a>
+            <div id="mini-carrito" class="position-absolute bg-white border rounded p-2 shadow"
+              style="display: none; top: 100%; right: 0; z-index: 1000; width: 300px; max-height: 400px; overflow-y: auto;">
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- CONTENIDO PRINCIPAL -->
+  <main class="container mt-5 mb-5">
+    <h2>Ubicación Actual</h2>
+    <button class="btn btn-primary btn-ubicacion" id="btnUbicacion">
+      <ion-icon name="navigate-outline"></ion-icon> Obtener ubicación
+    </button>
+    <div id="map"></div>
+  </main>
+
+
+  <!-- Pie de página -->
+  <footer class="bg-dark text-white text-center py-3">
+    © 2025 Vandari. Todos los derechos reservados.
+  </footer>
+
+  <!-- Bootstrap JS Bundle -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- JS personalizado -->
+  <script src="js/carrito.js"></script>
+  <script src="js/navbar.js"></script>
+  <script src="js/tienda.js"></script>
+
+  <!-- Modal genérico -->
+  <div class="modal fade" id="mensajeModal" tabindex="-1" aria-labelledby="mensajeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title" id="mensajeModalLabel">Mensaje</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body" id="mensajeModalCuerpo">
+          <!-- Aquí va el mensaje -->
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Aceptar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+  <!-- Script de geolocalización -->
+  <script>
+    const boton = document.getElementById('btnUbicacion');
+    const mapaDiv = document.getElementById('map');
+    let mapa;
+
+    boton.addEventListener('click', () => {
+      if (!navigator.geolocation) {
+        alert('La geolocalización no es compatible con tu navegador.');
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(pos => {
+        const lat = pos.coords.latitude;
+        const lon = pos.coords.longitude;
+
+        if (!mapa) {
+          mapa = L.map('map').setView([lat, lon], 15);
+          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+          }).addTo(mapa);
+        } else {
+          mapa.setView([lat, lon], 15);
+        }
+
+        L.marker([lat, lon]).addTo(mapa)
+          .bindPopup('Tu ubicación actual').openPopup();
+      }, err => {
+        alert('No se pudo obtener la ubicación.');
+        console.error(err);
+      });
+    });
+  </script>
+
+
+
+</body>
+
+</html>
