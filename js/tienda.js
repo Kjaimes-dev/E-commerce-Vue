@@ -1,11 +1,15 @@
+// Usar configuración compartida
+const API_URL = window.API_CONFIG ? window.API_CONFIG.API_URL : 'http://localhost:8024/api';
+
 let productos = [];
 let productosFiltrados = [];
 
-// Cargar productos desde el JSON
+// Cargar productos desde la API
 async function cargarProductos() {
     try {
-        const response = await fetch('data/productos.json');
-        productos = await response.json();
+        const response = await fetch(`${API_URL}/productos`);
+        const data = await response.json();
+        productos = data.productos;
         productosFiltrados = [...productos];
         mostrarProductos(productosFiltrados);
     } catch (error) {
@@ -23,10 +27,10 @@ function mostrarMensaje(texto, tipo = 'success') {
     setTimeout(() => div.remove(), 3000);
 }
 
-// Obtener la clave de carrito según sesión activa
-function getCarritoKey() {
+// Obtener ID de usuario activo (desde localStorage o null)
+function getUsuarioId() {
     const usuario = JSON.parse(localStorage.getItem('usuarioActivo'));
-    return usuario ? `carrito_${usuario.id}` : 'carrito_general';
+    return usuario ? usuario.id : null;
 }
 
 // Mostrar productos en tarjetas
@@ -52,7 +56,7 @@ function mostrarProductos(lista) {
                 <img src="${p.imagen}" class="card-img-top" alt="${p.nombre}">
                 <div class="card-body d-flex flex-column">
                     <h5 class="card-title">${p.nombre}</h5>
-                    <p class="card-text">$${p.precio.toLocaleString()}</p>
+                    <p class="card-text">$${parseFloat(p.precio).toLocaleString()}</p>
                     ${stockBadge}
                     <button class="btn btn-primary mt-auto" ${p.stock === 0 ? 'disabled' : ''} onclick="agregarAlCarrito(${p.id})">Agregar al carrito</button>
                 </div>
@@ -63,10 +67,46 @@ function mostrarProductos(lista) {
     });
 }
 
-// Agregar un producto al carrito
-function agregarAlCarrito(idProducto) {
-    const key = getCarritoKey();
-    let carrito = JSON.parse(localStorage.getItem(key)) || [];
+// Agregar un producto al carrito (usando API si hay usuario, localStorage si no)
+async function agregarAlCarrito(idProducto) {
+    const usuarioId = getUsuarioId();
+    
+    // Si hay usuario logueado, usar API
+    if (usuarioId) {
+        try {
+            const response = await fetch(`${API_URL}/carrito`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    producto_id: idProducto,
+                    cantidad: 1,
+                    usuario_id: usuarioId
+                })
+            });
+
+            const data = await response.json();
+            
+            if (response.ok) {
+                mostrarMensaje('Producto agregado al carrito');
+                if (typeof actualizarContadorCarrito === 'function') actualizarContadorCarrito();
+            } else {
+                mostrarMensaje(data.detail || 'Error al agregar al carrito', 'danger');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            mostrarMensaje('Error al agregar al carrito', 'danger');
+        }
+    } else {
+        // Si no hay usuario, usar localStorage (modo invitado)
+        agregarAlCarritoLocal(idProducto);
+    }
+}
+
+// Agregar al carrito usando localStorage (para usuarios no logueados)
+function agregarAlCarritoLocal(idProducto) {
+    let carrito = JSON.parse(localStorage.getItem('carrito_general')) || [];
 
     const productoOriginal = productos.find(p => p.id === idProducto);
     let productoEnCarrito = carrito.find(item => item.id === idProducto);
@@ -90,10 +130,9 @@ function agregarAlCarrito(idProducto) {
             nombre: productoOriginal.nombre,
             precio: productoOriginal.precio
         });
-
     }
 
-    localStorage.setItem(key, JSON.stringify(carrito));
+    localStorage.setItem('carrito_general', JSON.stringify(carrito));
     mostrarMensaje('Producto agregado al carrito');
     if (typeof actualizarContadorCarrito === 'function') actualizarContadorCarrito();
 }
@@ -114,7 +153,7 @@ function aplicarFiltros() {
 
     productosFiltrados = productos.filter(p => {
         const nombreCoincide = p.nombre.toLowerCase().includes(buscadorVal);
-        const precioValido = p.precio >= min && p.precio <= max;
+        const precioValido = parseFloat(p.precio) >= min && parseFloat(p.precio) <= max;
         return nombreCoincide && precioValido;
     });
 
@@ -126,10 +165,10 @@ function aplicarFiltros() {
             productosFiltrados.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
             break;
         case 'precio-alto':
-            productosFiltrados.sort((a, b) => b.precio - a.precio);
+            productosFiltrados.sort((a, b) => parseFloat(b.precio) - parseFloat(a.precio));
             break;
         case 'precio-bajo':
-            productosFiltrados.sort((a, b) => a.precio - b.precio);
+            productosFiltrados.sort((a, b) => parseFloat(a.precio) - parseFloat(b.precio));
             break;
     }
 

@@ -1,0 +1,52 @@
+services:
+  vandari_mysql:
+    image: mysql:8.4.0
+    container_name: vandari_mysql
+    ports:
+      - "3308:3306"
+    restart: always
+    env_file:
+      - .env
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      TZ: ${TZ}
+    volumes:
+      - vandari_mysql_data:/var/lib/mysql
+      - ./init_db.sql:/docker-entrypoint-initdb.d/init_db.sql
+    command: --bind-address=0.0.0.0
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -p${DB_PASSWORD} || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    networks:
+      - vandari_network
+
+  vandari_api:
+    build: .
+    container_name: vandari_api
+    ports:
+      - "8024:8000"
+    volumes:
+      - ./productos.py:/app/productos.py
+      - ./db_connection.py:/app/db_connection.py
+    env_file:
+      - .env
+    depends_on:
+      vandari_mysql:
+        condition: service_healthy
+    restart: always
+    command: uvicorn productos:app --host 0.0.0.0 --port 8000 --reload
+    networks:
+      - vandari_network
+
+volumes:
+  vandari_mysql_data:
+
+networks:
+  vandari_network:
+    driver: bridge
